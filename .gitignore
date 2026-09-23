@@ -1,0 +1,25 @@
+# STM32CubeIDE build folders
+Debug/
+Release/
+
+# Proteus temporary files
+*.workspace
+**/Project Backups/
+# Build artifacts
+*.o
+*.d
+*.elf
+*.hex
+!LAB1/Proteus/Firmware/LAB1.hex
+!LAB2/Proteus/Firmware/LAB2.hex
+*.bin
+*.map
+*.list
+*.su
+
+# Eclipse / STM32CubeIDE workspace metadata
+.metadata/
+
+# OS-generated files
+Thumbs.db
+.DS_Store
