@@ -2,6 +2,9 @@
 Debug/
 Release/
 
+# Proteus temporary files
+*.workspace
+**/Project Backups/
 # Build artifacts
 *.o
 *.d
