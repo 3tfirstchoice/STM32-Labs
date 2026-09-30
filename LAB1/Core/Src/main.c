@@ -156,9 +156,9 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   /* USER CODE BEGIN 2 */
-  int second = 0;
-  int minute = 0;
-  int hour = 0;
+  int second = 20;
+  int minute = 2;
+  int hour = 10;
   /* USER CODE END 2 */
 
   /* Infinite loop */
