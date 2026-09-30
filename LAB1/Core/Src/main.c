@@ -169,7 +169,7 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 	clearAllClock();
-	setNumberOnClock( hour );
+	setNumberOnClock( hour % 12 );
 	setNumberOnClock( minute / 5 );
 	setNumberOnClock( second / 5);
 	HAL_Delay(1000);
