@@ -193,6 +193,8 @@ int main(void)
   /* USER CODE BEGIN 2 */
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_6, GPIO_PIN_SET);
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_SET);
   HAL_TIM_Base_Start_IT(&htim2);
   /* USER CODE END 2 */
 
@@ -304,14 +306,17 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_6|GPIO_PIN_7, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4|GPIO_PIN_6|GPIO_PIN_7|GPIO_PIN_8
+                          |GPIO_PIN_9, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3
                           |GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : PA6 PA7 */
-  GPIO_InitStruct.Pin = GPIO_PIN_6|GPIO_PIN_7;
+  /*Configure GPIO pins : PA4 PA6 PA7 PA8
+                           PA9 */
+  GPIO_InitStruct.Pin = GPIO_PIN_4|GPIO_PIN_6|GPIO_PIN_7|GPIO_PIN_8
+                          |GPIO_PIN_9;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -332,26 +337,48 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 int count = 50;
-int led1_state = 0;
+int led_index = 0;
+int dot_flag = 0;
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
 	count --;
 	if ( count <= 0)
 	{
+		dot_flag++;
+		if ( dot_flag == 2)
+		{
+			dot_flag = 0;
+			HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_4);
+		}
+
 		count = 50;
 		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_6, GPIO_PIN_SET);
 		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, GPIO_PIN_SET);
-		if ( led1_state == 0 )
+		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_SET);
+		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_SET);
+		if ( led_index == 0 )
 		{
 			display7SEG( 1 );
 			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_6, GPIO_PIN_RESET);
-			led1_state = 1;
+			led_index = 1;
 		}
-		else
+		else if ( led_index == 1 )
 		{
 			display7SEG( 2 );
 			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, GPIO_PIN_RESET);
-			led1_state = 0;
+			led_index = 2;
+		}
+		else if ( led_index == 2 )
+		{
+			display7SEG( 3 );
+			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_RESET);
+			led_index = 3;
+		}
+		else
+		{
+			display7SEG( 0 );
+			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_RESET);
+			led_index = 0;
 		}
 
 	}
