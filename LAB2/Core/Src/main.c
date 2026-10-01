@@ -173,31 +173,31 @@ void update7SEG(int index)
     switch(index)
     {
         case 0:
-            // bật 7SEG 1
-        	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_6, GPIO_PIN_RESET);
             // display7SEG(led_buffer[0]);
         	display7SEG( led_buffer[0]);
+            // bật 7SEG 1
+        	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_6, GPIO_PIN_RESET);
             break;
 
         case 1:
-            // bật 7SEG 2
-        	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, GPIO_PIN_RESET);
             // display7SEG(led_buffer[1]);
         	display7SEG( led_buffer[1]);
+            // bật 7SEG 2
+        	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, GPIO_PIN_RESET);
             break;
 
         case 2:
-            // bật 7SEG 3
-        	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_RESET);
             // display7SEG(led_buffer[2]);
         	display7SEG( led_buffer[2]);
+            // bật 7SEG 3
+        	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_RESET);
             break;
 
         case 3:
-            // bật 7SEG 4
-        	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_RESET);
             // display7SEG(led_buffer[3]);
         	display7SEG( led_buffer[3]);
+            // bật 7SEG 4
+        	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_RESET);
             break;
 
         default:
@@ -381,7 +381,7 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-int count = 50;
+int count = 25;
 int dot_flag = 0;
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
@@ -391,9 +391,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		update7SEG(index_led);
 		index_led++;
 		dot_flag++;
-		count = 50;
+		count = 25;
 
-		if ( dot_flag == 2 )
+		if ( dot_flag == 4 )
 		{
 			HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_4);
 			dot_flag = 0;
