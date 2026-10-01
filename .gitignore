@@ -10,6 +10,8 @@ Release/
 *.d
 *.elf
 *.hex
+!LAB1/Proteus/Firmware/LAB1.hex
+!LAB2/Proteus/Firmware/LAB2.hex
 *.bin
 *.map
 *.list
