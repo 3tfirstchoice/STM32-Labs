@@ -219,7 +219,7 @@ void updateClockBuffer()
 
 int timer0_counter = 0;
 int timer0_flag = 0;
-int TIMER_CYCLE = 10;
+int TIMER_CYCLE = 1;
 
 void setTimer0(int duration)
 {
@@ -243,17 +243,32 @@ void timer_run()
 const int MAX_LED_MATRIX = 8;
 int index_led_matrix = 0;
 
+
 uint8_t matrix_buffer[8] =
 {
-    0b11111000,
-    0b00010100,
-    0b00010010,
-    0b00010001,
-    0b00010001,
-    0b00010010,
-    0b00010100,
-    0b11111000
+    0b00011000,
+    0b01111110,
+    0b00011000,
+    0b00011000,
+    0b00011000,
+    0b00011000,
+    0b00011000,
+    0b00000000
 };
+
+void animationOnLedUpdate()
+{
+		uint8_t led_matrixtemp;
+		led_matrixtemp   = matrix_buffer[0];
+		matrix_buffer[0] = matrix_buffer[1];
+		matrix_buffer[1] = matrix_buffer[2];
+		matrix_buffer[2] = matrix_buffer[3];
+		matrix_buffer[3] = matrix_buffer[4];
+		matrix_buffer[4] = matrix_buffer[5];
+		matrix_buffer[5] = matrix_buffer[6];
+		matrix_buffer[6] = matrix_buffer[7];
+		matrix_buffer[7] = led_matrixtemp;
+}
 
 void updateLEDMatrix(int index)
 {
@@ -354,8 +369,8 @@ int main(void)
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_SET);
   HAL_TIM_Base_Start_IT(&htim2);
   updateClockBuffer();
-  setTimer0(10);
-  int count = 0;
+  setTimer0(1);
+  int animationCount = 0;
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -368,47 +383,24 @@ int main(void)
 
 	  if ( timer0_flag == 1)
 	  {
-			update7SEG(index_led);
-			index_led++;
-			if (index_led >= MAX_LED)
+			updateLEDMatrix(index_led_matrix);
+			index_led_matrix++;
+			if ( index_led_matrix >= MAX_LED_MATRIX )
 			{
-				index_led = 0;
-			}
-		  	count++;
-		  	if ( count == 4)
-			{
-			  second++;
-			  if (second >= 60)
-			  {
-				  second = 0;
-				  minute++;
-			  }
+				animationCount++;
+				index_led_matrix = 0;
+				if ( animationCount >= 7 )
+				{
+					animationOnLedUpdate();
+					animationCount = 0;
+				}
 
-			  if (minute >= 60)
-			  {
-				  minute = 0;
-				  hour++;
-			  }
-
-			  if (hour >= 24)
-			  {
-				  hour = 0;
-			  }
-
-			  updateClockBuffer();
-			  HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_4);
-			  count =0;
 			}
 
-		  	updateLEDMatrix(index_led_matrix);
-		  	index_led_matrix++;
-		  	if ( index_led_matrix >= MAX_LED_MATRIX )
-		  	{
-		  		index_led_matrix = 0;
-		  	}
-			setTimer0(10);
+			setTimer0(1);
 	  }
-  }
+ }
+
   /* USER CODE END 3 */
 }
 
@@ -467,7 +459,7 @@ static void MX_TIM2_Init(void)
 
   /* USER CODE END TIM2_Init 1 */
   htim2.Instance = TIM2;
-  htim2.Init.Prescaler = 7999;
+  htim2.Init.Prescaler = 799;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim2.Init.Period = 9;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
