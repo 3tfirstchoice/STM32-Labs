@@ -371,6 +371,7 @@ int main(void)
   updateClockBuffer();
   setTimer0(1);
   int animationCount = 0;
+  int count_timer1 = 250;
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -385,6 +386,12 @@ int main(void)
 	  {
 			updateLEDMatrix(index_led_matrix);
 			index_led_matrix++;
+			count_timer1--;
+			if ( count_timer1 <= 0 )
+			{
+				count_timer1 = 250;
+				HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+			}
 			if ( index_led_matrix >= MAX_LED_MATRIX )
 			{
 				animationCount++;
