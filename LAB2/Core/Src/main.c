@@ -371,7 +371,8 @@ int main(void)
   updateClockBuffer();
   setTimer0(1);
   int animationCount = 0;
-  int count_timer1 = 250;
+  int count_timer1 = 100;
+  int count = 0;
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -391,6 +392,38 @@ int main(void)
 			{
 				count_timer1 = 250;
 				HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+				//phan cua 4 cai led 7 doan
+				update7SEG(index_led);
+				index_led++;
+				if (index_led >= MAX_LED)
+				{
+					index_led = 0;
+				}
+				count++;
+				if ( count == 1)
+				{
+				  second++;
+				  if (second >= 60)
+				  {
+					  second = 0;
+					  minute++;
+				  }
+
+				  if (minute >= 60)
+				  {
+					  minute = 0;
+					  hour++;
+				  }
+
+				  if (hour >= 24)
+				  {
+					  hour = 0;
+				  }
+
+				  updateClockBuffer();
+				  HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_4);
+				  count = 0;
+				}
 			}
 			if ( index_led_matrix >= MAX_LED_MATRIX )
 			{
