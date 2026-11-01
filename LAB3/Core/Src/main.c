@@ -21,7 +21,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "config.h"
+#include "software_timer.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -89,7 +90,7 @@ int main(void)
   MX_GPIO_Init();
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
-
+  timer_set(TIMER_BLINK, BLINK_TOGGLE_PERIOD_MS);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -99,6 +100,11 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+	  if (timer_is_expired(TIMER_BLINK) == 1)
+	  {
+	      timer_set(TIMER_BLINK, BLINK_TOGGLE_PERIOD_MS);
+	      HAL_GPIO_TogglePin(LED_RED_NS_GPIO_Port, LED_RED_NS_Pin);
+	  }
   }
   /* USER CODE END 3 */
 }

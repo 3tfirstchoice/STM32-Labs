@@ -24,7 +24,7 @@
 #define LED_GREEN_EW_GPIO_Port      GPIOA
 #define LED_GREEN_EW_Pin            GPIO_PIN_6
 
-/// 7-segment digit
+// 7-segment digit
 #define EN0_GPIO_Port               GPIOA
 #define EN0_Pin                     GPIO_PIN_7
 #define EN1_GPIO_Port               GPIOA
@@ -57,5 +57,12 @@
 #define BUTTON_2_Pin                GPIO_PIN_13
 #define BUTTON_3_GPIO_Port          GPIOB
 #define BUTTON_3_Pin                GPIO_PIN_14
+
+/* ------------------------------------------------------------------ */
+/* Timer                                                               */
+/* ------------------------------------------------------------------ */
+
+#define TIMER_CYCLE_MS              10U
+#define BLINK_TOGGLE_PERIOD_MS      250U
 
 #endif /* INC_CONFIG_H_ */
