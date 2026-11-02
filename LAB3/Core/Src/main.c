@@ -21,9 +21,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "config.h"
-#include "software_timer.h"
-#include "button.h"
+#include "input_processing.h"
 #include "led.h"
 /* USER CODE END Includes */
 
@@ -59,7 +57,6 @@ static void MX_TIM2_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-int mode = 1;
 /* USER CODE END 0 */
 
 /**
@@ -93,7 +90,6 @@ int main(void)
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
   display_mode(mode);
-  timer_set(TIMER_BUTTON, BUTTON_READ_PERIOD_MS);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -103,21 +99,7 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  if (timer_is_expired(TIMER_BUTTON) == 1)
-	  {
-	      timer_set(TIMER_BUTTON, BUTTON_READ_PERIOD_MS);
-	      button_reading();
-	  }
-
-	  if (is_button_pressed(0) == 1)
-	  {
-	      mode++;
-	      if (mode > 4)
-	      {
-	          mode = 1;
-	      }
-	      display_mode(mode);
-	  }
+	  fsm_for_input_processing();
   }
   /* USER CODE END 3 */
 }

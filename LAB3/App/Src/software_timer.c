@@ -7,6 +7,7 @@
 
 #include "software_timer.h"
 #include "config.h"
+#include "input_reading.h"
 
 
 static volatile uint32_t timer_counter[TIMER_COUNT];
@@ -48,5 +49,9 @@ void timer_run(void)
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
+    if (htim->Instance == TIM2)
+    {
         timer_run();
+        button_reading();
+    }
 }

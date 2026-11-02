@@ -13,7 +13,6 @@
 typedef enum
 {
 	TIMER_BLINK = 0,    // 2 Hz LED blinking
-	TIMER_BUTTON,       // period of button_reading()
 	TIMER_COUNT
 } TimerId;
 
