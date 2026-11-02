@@ -8,9 +8,9 @@
 #include "input_reading.h"
 #include "config.h"
 
-// button_reading() runs once per timer interrupt, so 1 second
-// is (1000 / TIMER_CYCLE_MS) calls: 100 calls when the interrupt is 10 ms
-#define DURATION_FOR_AUTO_INCREASING    (1000 / TIMER_CYCLE_MS)
+// button_reading() runs every BUTTON_READ_PERIOD_MS, so 1 second
+// is (1000 / BUTTON_READ_PERIOD_MS) calls: 100 calls for 10 ms
+#define DURATION_FOR_AUTO_INCREASING    (1000 / BUTTON_READ_PERIOD_MS)
 #define BUTTON_IS_PRESSED               GPIO_PIN_RESET
 #define BUTTON_IS_RELEASED              GPIO_PIN_SET
 
