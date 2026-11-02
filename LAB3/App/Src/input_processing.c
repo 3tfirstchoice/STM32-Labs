@@ -17,8 +17,9 @@ enum ButtonState buttonState[N0_OF_BUTTONS] = {BUTTON_RELEASED, BUTTON_RELEASED,
 
 int mode = 1;
 
-int red_duration = DEFAULT_RED_DURATION;   // value in use
-int temp_value = 0;                        // value being changed in modes 2-4
+int red_duration = DEFAULT_RED_DURATION;         // values in use
+int yellow_duration = DEFAULT_YELLOW_DURATION;
+int temp_value = 0;                              // value being changed in modes 2-4
 
 // Run the FSM of button index (section 4.4).
 // Return 1 once when the button goes from released to pressed, otherwise 0.
@@ -76,16 +77,21 @@ void fsm_for_input_processing(void)
         display_mode(mode);
         show_mode_on_seven_seg(mode);
 
+        // start from the duration in use of the mode color
         if (mode == 2)
         {
-            // start from the red duration in use
             temp_value = red_duration;
+            show_value_on_seven_seg(temp_value);
+        }
+        else if (mode == 3)
+        {
+            temp_value = yellow_duration;
             show_value_on_seven_seg(temp_value);
         }
     }
 
-    // Mode 2: change the red duration
-    if (mode == 2)
+    // Mode 2: change the red duration, mode 3: change the yellow duration
+    if (mode == 2 || mode == 3)
     {
         // Button 2: increase the value (99 -> 1)
         if (button2 == 1)
@@ -101,7 +107,14 @@ void fsm_for_input_processing(void)
         // Button 3: set the value
         if (button3 == 1)
         {
-            red_duration = temp_value;
+            if (mode == 2)
+            {
+                red_duration = temp_value;
+            }
+            else
+            {
+                yellow_duration = temp_value;
+            }
         }
     }
 }
