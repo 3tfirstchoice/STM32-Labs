@@ -7,50 +7,101 @@
 
 #include "input_processing.h"
 #include "input_reading.h"
+#include "config.h"
 #include "led.h"
 #include "seven_seg.h"
 
 enum ButtonState { BUTTON_RELEASED, BUTTON_PRESSED, BUTTON_PRESSED_MORE_THAN_1_SECOND };
-enum ButtonState buttonState = BUTTON_RELEASED;
+// one FSM state for each button
+enum ButtonState buttonState[N0_OF_BUTTONS] = {BUTTON_RELEASED, BUTTON_RELEASED, BUTTON_RELEASED};
 
 int mode = 1;
 
-void fsm_for_input_processing(void)
+int red_duration = DEFAULT_RED_DURATION;   // value in use
+int temp_value = 0;                        // value being changed in modes 2-4
+
+// Run the FSM of button index (section 4.4).
+// Return 1 once when the button goes from released to pressed, otherwise 0.
+int fsm_for_button(int index)
 {
-    switch (buttonState)
+    int just_pressed = 0;
+
+    switch (buttonState[index])
     {
     case BUTTON_RELEASED:
-        if (is_button_pressed(0))
+        if (is_button_pressed(index))
         {
-            buttonState = BUTTON_PRESSED;
-            // button 1 is pressed: go to the next mode (4 -> 1)
-            mode++;
-            if (mode > 4)
-            {
-                mode = 1;
-            }
-            display_mode(mode);
-            show_mode_on_seven_seg(mode);
+            buttonState[index] = BUTTON_PRESSED;
+            just_pressed = 1;
         }
         break;
     case BUTTON_PRESSED:
-        if (!is_button_pressed(0))
+        if (!is_button_pressed(index))
         {
-            buttonState = BUTTON_RELEASED;
+            buttonState[index] = BUTTON_RELEASED;
         }
         else
         {
-            if (is_button_pressed_1s(0))
+            if (is_button_pressed_1s(index))
             {
-                buttonState = BUTTON_PRESSED_MORE_THAN_1_SECOND;
+                buttonState[index] = BUTTON_PRESSED_MORE_THAN_1_SECOND;
             }
         }
         break;
     case BUTTON_PRESSED_MORE_THAN_1_SECOND:
-        if (!is_button_pressed(0))
+        if (!is_button_pressed(index))
         {
-            buttonState = BUTTON_RELEASED;
+            buttonState[index] = BUTTON_RELEASED;
         }
         break;
+    }
+
+    return just_pressed;
+}
+
+void fsm_for_input_processing(void)
+{
+    int button1 = fsm_for_button(0);
+    int button2 = fsm_for_button(1);
+    int button3 = fsm_for_button(2);
+
+    // Button 1: go to the next mode (4 -> 1)
+    if (button1 == 1)
+    {
+        mode++;
+        if (mode > 4)
+        {
+            mode = 1;
+        }
+        display_mode(mode);
+        show_mode_on_seven_seg(mode);
+
+        if (mode == 2)
+        {
+            // start from the red duration in use
+            temp_value = red_duration;
+            show_value_on_seven_seg(temp_value);
+        }
+    }
+
+    // Mode 2: change the red duration
+    if (mode == 2)
+    {
+        // Button 2: increase the value (99 -> 1)
+        if (button2 == 1)
+        {
+            temp_value++;
+            if (temp_value > DURATION_MAX)
+            {
+                temp_value = DURATION_MIN;
+            }
+            show_value_on_seven_seg(temp_value);
+        }
+
+        // Button 3: set the value
+        if (button3 == 1)
+        {
+            red_duration = temp_value;
+        }
     }
 }

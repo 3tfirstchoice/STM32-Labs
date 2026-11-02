@@ -99,3 +99,9 @@ void show_mode_on_seven_seg(int mode)
     set_led_buffer(2, mode / 10);
     set_led_buffer(3, mode % 10);
 }
+
+void show_value_on_seven_seg(int value)
+{
+    set_led_buffer(0, value / 10);
+    set_led_buffer(1, value % 10);
+}

@@ -21,4 +21,7 @@ void scan_seven_seg(void);
 // Show the mode on the East-West pair (digits 2, 3), North-South pair off
 void show_mode_on_seven_seg(int mode);
 
+// Show a value (0-99) on the North-South pair (digits 0, 1)
+void show_value_on_seven_seg(int value);
+
 #endif /* INC_SEVEN_SEG_H_ */

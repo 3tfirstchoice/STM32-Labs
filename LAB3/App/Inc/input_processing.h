@@ -11,6 +11,9 @@
 // Current mode (1 to 4), defined in input_processing.c
 extern int mode;
 
+// Red duration in use (seconds), defined in input_processing.c
+extern int red_duration;
+
 // Call in the while (1) loop of main
 void fsm_for_input_processing(void);
 

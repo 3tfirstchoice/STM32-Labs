@@ -66,4 +66,12 @@
 #define BLINK_TOGGLE_PERIOD_MS      250U
 #define SEVEN_SEG_SCAN_PERIOD_MS    10U
 
+/* ------------------------------------------------------------------ */
+/* Traffic light durations (seconds)                                   */
+/* ------------------------------------------------------------------ */
+
+#define DEFAULT_RED_DURATION        5
+#define DURATION_MAX                99
+#define DURATION_MIN                1
+
 #endif /* INC_CONFIG_H_ */
