@@ -47,11 +47,22 @@ void timer_run(void)
     }
 }
 
+// counts timer interrupts until the next button_reading()
+uint32_t button_counter = 0;
+
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
     if (htim->Instance == TIM2)
     {
         timer_run();
-        button_reading();
+
+        // Read the buttons every BUTTON_READ_PERIOD_MS, whatever the
+        // interrupt period is (10 ms -> every interrupt, 1 ms -> every 10th)
+        button_counter++;
+        if (button_counter >= BUTTON_READ_PERIOD_MS / TIMER_CYCLE_MS)
+        {
+            button_counter = 0;
+            button_reading();
+        }
     }
 }
