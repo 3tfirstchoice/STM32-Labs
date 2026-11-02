@@ -61,3 +61,43 @@ void blink_mode_leds(int mode)
         display_mode(mode);
     }
 }
+
+void set_ns_light(int color)
+{
+    HAL_GPIO_WritePin(LED_RED_NS_GPIO_Port, LED_RED_NS_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(LED_YELLOW_NS_GPIO_Port, LED_YELLOW_NS_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(LED_GREEN_NS_GPIO_Port, LED_GREEN_NS_Pin, GPIO_PIN_SET);
+
+    if (color == RED)
+    {
+        HAL_GPIO_WritePin(LED_RED_NS_GPIO_Port, LED_RED_NS_Pin, GPIO_PIN_RESET);
+    }
+    else if (color == YELLOW)
+    {
+        HAL_GPIO_WritePin(LED_YELLOW_NS_GPIO_Port, LED_YELLOW_NS_Pin, GPIO_PIN_RESET);
+    }
+    else
+    {
+        HAL_GPIO_WritePin(LED_GREEN_NS_GPIO_Port, LED_GREEN_NS_Pin, GPIO_PIN_RESET);
+    }
+}
+
+void set_ew_light(int color)
+{
+    HAL_GPIO_WritePin(LED_RED_EW_GPIO_Port, LED_RED_EW_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(LED_YELLOW_EW_GPIO_Port, LED_YELLOW_EW_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(LED_GREEN_EW_GPIO_Port, LED_GREEN_EW_Pin, GPIO_PIN_SET);
+
+    if (color == RED)
+    {
+        HAL_GPIO_WritePin(LED_RED_EW_GPIO_Port, LED_RED_EW_Pin, GPIO_PIN_RESET);
+    }
+    else if (color == YELLOW)
+    {
+        HAL_GPIO_WritePin(LED_YELLOW_EW_GPIO_Port, LED_YELLOW_EW_Pin, GPIO_PIN_RESET);
+    }
+    else
+    {
+        HAL_GPIO_WritePin(LED_GREEN_EW_GPIO_Port, LED_GREEN_EW_Pin, GPIO_PIN_RESET);
+    }
+}

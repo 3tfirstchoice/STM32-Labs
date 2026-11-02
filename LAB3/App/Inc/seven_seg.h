@@ -24,4 +24,7 @@ void show_mode_on_seven_seg(int mode);
 // Show a value (0-99) on the North-South pair (digits 0, 1)
 void show_value_on_seven_seg(int value);
 
+// Mode 1: show the seconds left of each road (NS on digits 0, 1, EW on digits 2, 3)
+void show_countdown_on_seven_seg(int ns_value, int ew_value);
+
 #endif /* INC_SEVEN_SEG_H_ */

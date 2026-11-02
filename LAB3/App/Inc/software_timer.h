@@ -14,6 +14,7 @@ typedef enum
 {
 	TIMER_BLINK = 0,    // 2 Hz LED blinking
 	TIMER_SEVEN_SEG,    // period of scan_seven_seg()
+	TIMER_SECOND,       // 1 s count-down in mode 1
 	TIMER_COUNT
 } TimerId;
 

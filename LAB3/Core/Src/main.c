@@ -26,6 +26,7 @@
 #include "input_processing.h"
 #include "led.h"
 #include "seven_seg.h"
+#include "traffic_light.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -92,8 +93,7 @@ int main(void)
   MX_GPIO_Init();
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
-  display_mode(mode);
-  show_mode_on_seven_seg(mode);
+  traffic_reset();
   timer_set(TIMER_SEVEN_SEG, SEVEN_SEG_SCAN_PERIOD_MS);
   timer_set(TIMER_BLINK, BLINK_TOGGLE_PERIOD_MS);
   /* USER CODE END 2 */
@@ -119,6 +119,12 @@ int main(void)
 	  {
 	      timer_set(TIMER_BLINK, BLINK_TOGGLE_PERIOD_MS);
 	      blink_mode_leds(mode);
+	  }
+	  // Mode 1, every 1 second: count down and change the lights
+	  if (mode == 1 && timer_is_expired(TIMER_SECOND) == 1)
+	  {
+	      timer_set(TIMER_SECOND, ONE_SECOND_MS);
+	      traffic_run();
 	  }
   }
   /* USER CODE END 3 */

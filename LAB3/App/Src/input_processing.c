@@ -10,6 +10,7 @@
 #include "config.h"
 #include "led.h"
 #include "seven_seg.h"
+#include "traffic_light.h"
 
 enum ButtonState { BUTTON_RELEASED, BUTTON_PRESSED, BUTTON_PRESSED_MORE_THAN_1_SECOND };
 // one FSM state for each button
@@ -61,6 +62,55 @@ int fsm_for_button(int index)
     return just_pressed;
 }
 
+// Button 3: save temp_value to the mode color and keep red = green + yellow.
+//   mode 2 (red):    green = red - yellow
+//   mode 3 (yellow): red = green + yellow
+//   mode 4 (green):  red = green + yellow
+void set_duration(void)
+{
+    if (mode == 2)
+    {
+        int new_green = temp_value - yellow_duration;
+        if (new_green >= DURATION_MIN)
+        {
+            red_duration = temp_value;
+            green_duration = new_green;
+        }
+        else
+        {
+            temp_value = red_duration;
+        }
+    }
+    else if (mode == 3)
+    {
+        int new_red = green_duration + temp_value;
+        if (new_red <= DURATION_MAX)
+        {
+            yellow_duration = temp_value;
+            red_duration = new_red;
+        }
+        else
+        {
+            temp_value = yellow_duration;
+        }
+    }
+    else if (mode == 4)
+    {
+        int new_red = temp_value + yellow_duration;
+        if (new_red <= DURATION_MAX)
+        {
+            green_duration = temp_value;
+            red_duration = new_red;
+        }
+        else
+        {
+            temp_value = green_duration;
+        }
+    }
+
+    show_value_on_seven_seg(temp_value);
+}
+
 void fsm_for_input_processing(void)
 {
     int button1 = fsm_for_button(0);
@@ -75,8 +125,16 @@ void fsm_for_input_processing(void)
         {
             mode = 1;
         }
-        display_mode(mode);
-        show_mode_on_seven_seg(mode);
+        if (mode == 1)
+        {
+            // back to the normal mode: run the traffic light again
+            traffic_reset();
+        }
+        else
+        {
+            display_mode(mode);
+            show_mode_on_seven_seg(mode);
+        }
 
         // start from the duration in use of the mode color
         if (mode == 2)
@@ -110,21 +168,10 @@ void fsm_for_input_processing(void)
             show_value_on_seven_seg(temp_value);
         }
 
-        // Button 3: set the value
+        // Button 3: set the value and keep red = green + yellow
         if (button3 == 1)
         {
-            if (mode == 2)
-            {
-                red_duration = temp_value;
-            }
-            else if (mode == 3)
-            {
-                yellow_duration = temp_value;
-            }
-            else
-            {
-                green_duration = temp_value;
-            }
+            set_duration();
         }
     }
 }

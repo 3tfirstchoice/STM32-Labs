@@ -105,3 +105,11 @@ void show_value_on_seven_seg(int value)
     set_led_buffer(0, value / 10);
     set_led_buffer(1, value % 10);
 }
+
+void show_countdown_on_seven_seg(int ns_value, int ew_value)
+{
+    set_led_buffer(0, ns_value / 10);
+    set_led_buffer(1, ns_value % 10);
+    set_led_buffer(2, ew_value / 10);
+    set_led_buffer(3, ew_value % 10);
+}
