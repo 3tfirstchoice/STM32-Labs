@@ -23,6 +23,8 @@
 /* USER CODE BEGIN Includes */
 #include "config.h"
 #include "software_timer.h"
+#include "button.h"
+#include "led.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -57,7 +59,7 @@ static void MX_TIM2_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+int mode = 1;
 /* USER CODE END 0 */
 
 /**
@@ -90,7 +92,8 @@ int main(void)
   MX_GPIO_Init();
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
-  timer_set(TIMER_BLINK, BLINK_TOGGLE_PERIOD_MS);
+  display_mode(mode);
+  timer_set(TIMER_BUTTON, BUTTON_READ_PERIOD_MS);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -100,10 +103,20 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  if (timer_is_expired(TIMER_BLINK) == 1)
+	  if (timer_is_expired(TIMER_BUTTON) == 1)
 	  {
-	      timer_set(TIMER_BLINK, BLINK_TOGGLE_PERIOD_MS);
-	      HAL_GPIO_TogglePin(LED_RED_NS_GPIO_Port, LED_RED_NS_Pin);
+	      timer_set(TIMER_BUTTON, BUTTON_READ_PERIOD_MS);
+	      button_reading();
+	  }
+
+	  if (is_button_pressed(0) == 1)
+	  {
+	      mode++;
+	      if (mode > 4)
+	      {
+	          mode = 1;
+	      }
+	      display_mode(mode);
 	  }
   }
   /* USER CODE END 3 */
