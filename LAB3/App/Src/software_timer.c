@@ -17,11 +17,6 @@ void timer_set(TimerId id, uint32_t duration_ms)
 {
     uint32_t ticks = duration_ms / TIMER_CYCLE_MS;
 
-    if (ticks == 0)
-    {
-        ticks = 1;
-    }
-
     timer_flag[id] = 0;
     timer_counter[id] = ticks;
 }
