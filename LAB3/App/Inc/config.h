@@ -64,5 +64,6 @@
 
 #define TIMER_CYCLE_MS              10U
 #define BLINK_TOGGLE_PERIOD_MS      250U
+#define SEVEN_SEG_SCAN_PERIOD_MS    10U
 
 #endif /* INC_CONFIG_H_ */

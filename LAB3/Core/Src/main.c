@@ -21,8 +21,11 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "config.h"
+#include "software_timer.h"
 #include "input_processing.h"
 #include "led.h"
+#include "seven_seg.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -90,6 +93,9 @@ int main(void)
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
   display_mode(mode);
+  show_mode_on_seven_seg(mode);
+  timer_set(TIMER_SEVEN_SEG, SEVEN_SEG_SCAN_PERIOD_MS);
+  timer_set(TIMER_BLINK, BLINK_TOGGLE_PERIOD_MS);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -100,6 +106,20 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 	  fsm_for_input_processing();
+
+	  // Every 10 ms: turn on the next 7-segment digit
+	  if (timer_is_expired(TIMER_SEVEN_SEG) == 1)
+	  {
+	      timer_set(TIMER_SEVEN_SEG, SEVEN_SEG_SCAN_PERIOD_MS);
+	      scan_seven_seg();
+	  }
+
+	  // Every 250 ms: blink the LEDs of the mode color
+	  if (timer_is_expired(TIMER_BLINK) == 1)
+	  {
+	      timer_set(TIMER_BLINK, BLINK_TOGGLE_PERIOD_MS);
+	      blink_mode_leds(mode);
+	  }
   }
   /* USER CODE END 3 */
 }

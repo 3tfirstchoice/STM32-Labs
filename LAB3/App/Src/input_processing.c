@@ -8,6 +8,7 @@
 #include "input_processing.h"
 #include "input_reading.h"
 #include "led.h"
+#include "seven_seg.h"
 
 enum ButtonState { BUTTON_RELEASED, BUTTON_PRESSED, BUTTON_PRESSED_MORE_THAN_1_SECOND };
 enum ButtonState buttonState = BUTTON_RELEASED;
@@ -29,6 +30,7 @@ void fsm_for_input_processing(void)
                 mode = 1;
             }
             display_mode(mode);
+            show_mode_on_seven_seg(mode);
         }
         break;
     case BUTTON_PRESSED:
