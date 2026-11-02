@@ -72,6 +72,7 @@
 
 #define DEFAULT_RED_DURATION        5
 #define DEFAULT_YELLOW_DURATION     2
+#define DEFAULT_GREEN_DURATION      3
 #define DURATION_MAX                99
 #define DURATION_MIN                1
 

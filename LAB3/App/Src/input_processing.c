@@ -19,6 +19,7 @@ int mode = 1;
 
 int red_duration = DEFAULT_RED_DURATION;         // values in use
 int yellow_duration = DEFAULT_YELLOW_DURATION;
+int green_duration = DEFAULT_GREEN_DURATION;
 int temp_value = 0;                              // value being changed in modes 2-4
 
 // Run the FSM of button index (section 4.4).
@@ -88,10 +89,15 @@ void fsm_for_input_processing(void)
             temp_value = yellow_duration;
             show_value_on_seven_seg(temp_value);
         }
+        else if (mode == 4)
+        {
+            temp_value = green_duration;
+            show_value_on_seven_seg(temp_value);
+        }
     }
 
-    // Mode 2: change the red duration, mode 3: change the yellow duration
-    if (mode == 2 || mode == 3)
+    // Modes 2, 3, 4: change the red, yellow, green duration
+    if (mode == 2 || mode == 3 || mode == 4)
     {
         // Button 2: increase the value (99 -> 1)
         if (button2 == 1)
@@ -111,9 +117,13 @@ void fsm_for_input_processing(void)
             {
                 red_duration = temp_value;
             }
-            else
+            else if (mode == 3)
             {
                 yellow_duration = temp_value;
+            }
+            else
+            {
+                green_duration = temp_value;
             }
         }
     }

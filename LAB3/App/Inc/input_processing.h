@@ -14,6 +14,7 @@ extern int mode;
 // Durations in use (seconds), defined in input_processing.c
 extern int red_duration;
 extern int yellow_duration;
+extern int green_duration;
 
 // Call in the while (1) loop of main
 void fsm_for_input_processing(void);
