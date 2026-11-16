@@ -3,28 +3,21 @@
  *
  *  Created on: Nov 2, 2026
  *      Author: HP
+ *
+ *  Four 7-segment digits, scanned one by one.
+ *  Road A = digits 0, 1. Road B = digits 2, 3.
  */
 
 #ifndef INC_SEVEN_SEG_H_
 #define INC_SEVEN_SEG_H_
 
-#define MAX_LED     4
-#define BLANK       10      // value that turns a digit off
+#define SEVEN_SEG_OFF   (-1)    // number that turns a pair of digits off
 
-// Digit index: 0, 1 = North-South pair, 2, 3 = East-West pair
-// value: 0-9, or BLANK
-void set_led_buffer(int index, int value);
+// Number 0-99 (or SEVEN_SEG_OFF) shown on each road; the FSMs write them
+extern volatile int road_a_number;
+extern volatile int road_b_number;
 
-// Call every 10 ms: turn on the next digit (0 -> 1 -> 2 -> 3 -> 0)
-void scan_seven_seg(void);
-
-// Show the mode on the East-West pair (digits 2, 3), North-South pair off
-void show_mode_on_seven_seg(int mode);
-
-// Show a value (0-99) on the North-South pair (digits 0, 1)
-void show_value_on_seven_seg(int value);
-
-// Mode 1: show the seconds left of each road (NS on digits 0, 1, EW on digits 2, 3)
-void show_countdown_on_seven_seg(int ns_value, int ew_value);
+// Called in the TIM2 interrupt (every 10 ms): turn on the next digit
+void seven_seg_scan(void);
 
 #endif /* INC_SEVEN_SEG_H_ */

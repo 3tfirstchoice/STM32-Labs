@@ -21,12 +21,13 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "config.h"
 #include "software_timer.h"
-#include "input_processing.h"
-#include "led.h"
+#include "button.h"
 #include "seven_seg.h"
 #include "traffic_light.h"
+#include "fsm_automatic.h"
+#include "fsm_manual.h"
+#include "fsm_setting.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -93,9 +94,6 @@ int main(void)
   MX_GPIO_Init();
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
-  traffic_reset();
-  timer_set(TIMER_SEVEN_SEG, SEVEN_SEG_SCAN_PERIOD_MS);
-  timer_set(TIMER_BLINK, BLINK_TOGGLE_PERIOD_MS);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -105,27 +103,9 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  fsm_for_input_processing();
-
-	  // Every 10 ms: turn on the next 7-segment digit
-	  if (timer_is_expired(TIMER_SEVEN_SEG) == 1)
-	  {
-	      timer_set(TIMER_SEVEN_SEG, SEVEN_SEG_SCAN_PERIOD_MS);
-	      scan_seven_seg();
-	  }
-
-	  // Every 250 ms: blink the LEDs of the mode color
-	  if (timer_is_expired(TIMER_BLINK) == 1)
-	  {
-	      timer_set(TIMER_BLINK, BLINK_TOGGLE_PERIOD_MS);
-	      blink_mode_leds(mode);
-	  }
-	  // Mode 1, every 1 second: count down and change the lights
-	  if (mode == 1 && timer_is_expired(TIMER_SECOND) == 1)
-	  {
-	      timer_set(TIMER_SECOND, ONE_SECOND_MS);
-	      traffic_run();
-	  }
+	  fsm_automatic_run();
+	  fsm_manual_run();
+	  fsm_setting_run();
   }
   /* USER CODE END 3 */
 }
@@ -266,6 +246,17 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+// TIM2 every 10 ms: time base, button reading, LEDs, 7-segment scanning
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+  if (htim->Instance == TIM2)
+  {
+    timer_run();
+    button_scan();
+    traffic_light_update();
+    seven_seg_scan();
+  }
+}
 
 /* USER CODE END 4 */
 

@@ -8,108 +8,58 @@
 #include "seven_seg.h"
 #include "config.h"
 
-// 1 = segment on, order: a b c d e f g
-int digit_table[11][7] =
+#define NUMBER_OF_DIGITS    4
+
+volatile int road_a_number = SEVEN_SEG_OFF;
+volatile int road_b_number = SEVEN_SEG_OFF;
+
+static const GpioPin enable_pin[NUMBER_OF_DIGITS] =
 {
-    {1, 1, 1, 1, 1, 1, 0},   // 0
-    {0, 1, 1, 0, 0, 0, 0},   // 1
-    {1, 1, 0, 1, 1, 0, 1},   // 2
-    {1, 1, 1, 1, 0, 0, 1},   // 3
-    {0, 1, 1, 0, 0, 1, 1},   // 4
-    {1, 0, 1, 1, 0, 1, 1},   // 5
-    {1, 0, 1, 1, 1, 1, 1},   // 6
-    {1, 1, 1, 0, 0, 0, 0},   // 7
-    {1, 1, 1, 1, 1, 1, 1},   // 8
-    {1, 1, 1, 1, 0, 1, 1},   // 9
-    {0, 0, 0, 0, 0, 0, 0}    // BLANK
+    {EN0_GPIO_Port, EN0_Pin},
+    {EN1_GPIO_Port, EN1_Pin},
+    {EN2_GPIO_Port, EN2_Pin},
+    {EN3_GPIO_Port, EN3_Pin},
 };
 
-int led_buffer[MAX_LED] = {BLANK, BLANK, BLANK, BLANK};
-int index_led = 0;
-
-// Segment is on when its pin is GPIO_PIN_RESET
-GPIO_PinState segment_level(int on)
+static const GpioPin segment_pin[7] =
 {
-    if (on == 1)
+    {SEG_A_GPIO_Port, SEG_A_Pin},
+    {SEG_B_GPIO_Port, SEG_B_Pin},
+    {SEG_C_GPIO_Port, SEG_C_Pin},
+    {SEG_D_GPIO_Port, SEG_D_Pin},
+    {SEG_E_GPIO_Port, SEG_E_Pin},
+    {SEG_F_GPIO_Port, SEG_F_Pin},
+    {SEG_G_GPIO_Port, SEG_G_Pin},
+};
+
+// bit 0 = segment a ... bit 6 = segment g, 1 = segment on
+static const uint8_t digit_pattern[10] =
+{
+    0x3F, 0x06, 0x5B, 0x4F, 0x66, 0x6D, 0x7D, 0x07, 0x7F, 0x6F
+};
+
+static int current_digit = 0;
+
+void seven_seg_scan(void)
+{
+    // digits 0, 1 show road A, digits 2, 3 show road B (tens, then units)
+    int number = (current_digit < 2) ? road_a_number : road_b_number;
+    int digit_value = (current_digit % 2 == 0) ? number / 10 : number % 10;
+    uint8_t pattern = (number < 0) ? 0 : digit_pattern[digit_value];
+
+    // all digits off while the segments change
+    for (int digit = 0; digit < NUMBER_OF_DIGITS; digit++)
     {
-        return GPIO_PIN_RESET;
+        HAL_GPIO_WritePin(enable_pin[digit].port, enable_pin[digit].pin, GPIO_PIN_SET);
     }
-    return GPIO_PIN_SET;
-}
 
-void display7SEG(int num)
-{
-    HAL_GPIO_WritePin(SEG_A_GPIO_Port, SEG_A_Pin, segment_level(digit_table[num][0]));
-    HAL_GPIO_WritePin(SEG_B_GPIO_Port, SEG_B_Pin, segment_level(digit_table[num][1]));
-    HAL_GPIO_WritePin(SEG_C_GPIO_Port, SEG_C_Pin, segment_level(digit_table[num][2]));
-    HAL_GPIO_WritePin(SEG_D_GPIO_Port, SEG_D_Pin, segment_level(digit_table[num][3]));
-    HAL_GPIO_WritePin(SEG_E_GPIO_Port, SEG_E_Pin, segment_level(digit_table[num][4]));
-    HAL_GPIO_WritePin(SEG_F_GPIO_Port, SEG_F_Pin, segment_level(digit_table[num][5]));
-    HAL_GPIO_WritePin(SEG_G_GPIO_Port, SEG_G_Pin, segment_level(digit_table[num][6]));
-}
-
-// Digit is selected when its EN pin is GPIO_PIN_RESET
-void update7SEG(int index)
-{
-    HAL_GPIO_WritePin(EN0_GPIO_Port, EN0_Pin, GPIO_PIN_SET);
-    HAL_GPIO_WritePin(EN1_GPIO_Port, EN1_Pin, GPIO_PIN_SET);
-    HAL_GPIO_WritePin(EN2_GPIO_Port, EN2_Pin, GPIO_PIN_SET);
-    HAL_GPIO_WritePin(EN3_GPIO_Port, EN3_Pin, GPIO_PIN_SET);
-
-    display7SEG(led_buffer[index]);
-
-    if (index == 0)
+    for (int segment = 0; segment < 7; segment++)
     {
-        HAL_GPIO_WritePin(EN0_GPIO_Port, EN0_Pin, GPIO_PIN_RESET);
+        HAL_GPIO_WritePin(segment_pin[segment].port, segment_pin[segment].pin,
+                          ((pattern >> segment) & 1) ? GPIO_PIN_RESET : GPIO_PIN_SET);
     }
-    else if (index == 1)
-    {
-        HAL_GPIO_WritePin(EN1_GPIO_Port, EN1_Pin, GPIO_PIN_RESET);
-    }
-    else if (index == 2)
-    {
-        HAL_GPIO_WritePin(EN2_GPIO_Port, EN2_Pin, GPIO_PIN_RESET);
-    }
-    else
-    {
-        HAL_GPIO_WritePin(EN3_GPIO_Port, EN3_Pin, GPIO_PIN_RESET);
-    }
-}
 
-void set_led_buffer(int index, int value)
-{
-    led_buffer[index] = value;
-}
+    HAL_GPIO_WritePin(enable_pin[current_digit].port, enable_pin[current_digit].pin, GPIO_PIN_RESET);
 
-void scan_seven_seg(void)
-{
-    update7SEG(index_led);
-
-    index_led++;
-    if (index_led >= MAX_LED)
-    {
-        index_led = 0;
-    }
-}
-
-void show_mode_on_seven_seg(int mode)
-{
-    set_led_buffer(0, BLANK);
-    set_led_buffer(1, BLANK);
-    set_led_buffer(2, mode / 10);
-    set_led_buffer(3, mode % 10);
-}
-
-void show_value_on_seven_seg(int value)
-{
-    set_led_buffer(0, value / 10);
-    set_led_buffer(1, value % 10);
-}
-
-void show_countdown_on_seven_seg(int ns_value, int ew_value)
-{
-    set_led_buffer(0, ns_value / 10);
-    set_led_buffer(1, ns_value % 10);
-    set_led_buffer(2, ew_value / 10);
-    set_led_buffer(3, ew_value % 10);
+    current_digit = (current_digit + 1) % NUMBER_OF_DIGITS;
 }

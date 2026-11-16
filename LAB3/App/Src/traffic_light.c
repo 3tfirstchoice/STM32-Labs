@@ -6,101 +6,46 @@
  */
 
 #include "traffic_light.h"
-#include "input_processing.h"
-#include "led.h"
-#include "seven_seg.h"
-#include "software_timer.h"
 #include "config.h"
 
-//   State       North-South   East-West
-//   NS_GREEN    green         red
-//   NS_YELLOW   yellow        red
-//   EW_GREEN    red           green
-//   EW_YELLOW   red           yellow
-enum TrafficState { NS_GREEN, NS_YELLOW, EW_GREEN, EW_YELLOW };
-enum TrafficState trafficState = NS_GREEN;
+volatile LightColor light_road_a = LIGHT_OFF;
+volatile LightColor light_road_b = LIGHT_OFF;
 
-// seconds left of the color shown on each road
-int ns_counter = 0;
-int ew_counter = 0;
-
-// Light the LEDs of the current state and show both counters
-void show_traffic(void)
+// index = LightColor (RED, YELLOW, GREEN)
+static const GpioPin road_a[3] =
 {
-    if (trafficState == NS_GREEN)
-    {
-        set_ns_light(GREEN);
-        set_ew_light(RED);
-    }
-    else if (trafficState == NS_YELLOW)
-    {
-        set_ns_light(YELLOW);
-        set_ew_light(RED);
-    }
-    else if (trafficState == EW_GREEN)
-    {
-        set_ns_light(RED);
-        set_ew_light(GREEN);
-    }
-    else
-    {
-        set_ns_light(RED);
-        set_ew_light(YELLOW);
-    }
+    {LED_RED_A_GPIO_Port,    LED_RED_A_Pin},
+    {LED_YELLOW_A_GPIO_Port, LED_YELLOW_A_Pin},
+    {LED_GREEN_A_GPIO_Port,  LED_GREEN_A_Pin},
+};
 
-    show_countdown_on_seven_seg(ns_counter, ew_counter);
-}
-
-void traffic_reset(void)
+static const GpioPin road_b[3] =
 {
-    trafficState = NS_GREEN;
-    ns_counter = green_duration;
-    ew_counter = red_duration;
-    show_traffic();
+    {LED_RED_B_GPIO_Port,    LED_RED_B_Pin},
+    {LED_YELLOW_B_GPIO_Port, LED_YELLOW_B_Pin},
+    {LED_GREEN_B_GPIO_Port,  LED_GREEN_B_Pin},
+};
 
-    // count a full second before the first step
-    timer_set(TIMER_SECOND, ONE_SECOND_MS);
-}
-
-void traffic_run(void)
+// LED on = GPIO_PIN_RESET: only the LED of the chosen color is on.
+// Pins are written only when a color changes, so the toggle_led()
+// blinking done by fsm_setting is not overwritten.
+void traffic_light_update(void)
 {
-    ns_counter--;
-    ew_counter--;
+    static LightColor shown_road_a = LIGHT_OFF;
+    static LightColor shown_road_b = LIGHT_OFF;
 
-    // red = green + yellow
-    switch (trafficState)
+    if (light_road_a == shown_road_a && light_road_b == shown_road_b)
     {
-    case NS_GREEN:
-        if (ns_counter <= 0)
-        {
-            trafficState = NS_YELLOW;
-            ns_counter = yellow_duration;
-        }
-        break;
-    case NS_YELLOW:
-        if (ns_counter <= 0)
-        {
-            trafficState = EW_GREEN;
-            ns_counter = red_duration;
-            ew_counter = green_duration;
-        }
-        break;
-    case EW_GREEN:
-        if (ew_counter <= 0)
-        {
-            trafficState = EW_YELLOW;
-            ew_counter = yellow_duration;
-        }
-        break;
-    case EW_YELLOW:
-        if (ew_counter <= 0)
-        {
-            trafficState = NS_GREEN;
-            ns_counter = green_duration;
-            ew_counter = red_duration;
-        }
-        break;
+        return;
     }
+    shown_road_a = light_road_a;
+    shown_road_b = light_road_b;
 
-    show_traffic();
+    for (int color = RED; color <= GREEN; color++)
+    {
+        HAL_GPIO_WritePin(road_a[color].port, road_a[color].pin,
+                          (color == light_road_a) ? GPIO_PIN_RESET : GPIO_PIN_SET);
+        HAL_GPIO_WritePin(road_b[color].port, road_b[color].pin,
+                          (color == light_road_b) ? GPIO_PIN_RESET : GPIO_PIN_SET);
+    }
 }
